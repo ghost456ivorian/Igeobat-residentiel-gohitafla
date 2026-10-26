@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IGEOBAT - Cité Résidentielle Habitat Extension</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter & Playfair Display -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- OrbitControls for 3D Camera Interaction -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandBlue: {
+                            50: '#eef6ff',
+                            100: '#d9ecff',
+                            500: '#1b75bc', // Bleu principal IGEOBAT
+                            700: '#004a87',
+                            900: '#0a192f', // Fond sombre quadrillé
+                            dark: '#070f1e'
+                        },
+                        brandOrange: {
+                            400: '#ff9800',
+                            500: '#f58220', // Orange principal IGEOBAT
+                            600: '#e06d0e'
+                        },
+                        cardBg: '#0f223d'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #070f1e;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background-image: linear-gradient(rgba(27, 117, 188, 0.07) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(27, 117, 188, 0.07) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        .blue-orange-gradient {
+            background: linear-gradient(135deg, #1b75bc 0%, #004a87 50%, #f58220 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .orange-border-glow {
+            box-shadow: 0 0 20px rgba(245, 130, 32, 0.18);
+            border: 1px solid rgba(245, 130, 32, 0.4);
+        }
+        .blue-border-glow {
+            box-shadow: 0 0 20px rgba(27, 117, 188, 0.2);
+            border: 1px solid rgba(27, 117, 188, 0.4);
+        }
+        .glass-panel {
+            background: rgba(15, 34, 61, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(27, 117, 188, 0.3);
+        }
+        canvas {
+            outline: none;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-brandOrange-500 selection:text-white">
+
+    <!-- En-tête Navigation Fixe -->
+    <header class="fixed top-0 left-0 w-full z-40 glass-panel border-b border-brandBlue-500/30 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Logo SVG Favorable avec les Couleurs Exactes d'IGEOBAT (Bleu + Orange + Immeuble) -->
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-14 h-12 flex items-center justify-center rounded-lg bg-white/95 p-1 border border-brandOrange-500 shadow-md">
+                    <svg viewBox="0 0 200 120" class="w-full h-full">
+                        <!-- Silhouette Immeuble Orange à gauche -->
+                        <path d="M15 90 L15 35 L45 35 L45 90 Z" fill="#F58220" />
+                        <!-- Fenêtres immeuble -->
+                        <rect x="20" y="42" width="6" height="8" fill="#FFF" />
+                        <rect x="32" y="42" width="6" height="8" fill="#FFF" />
+                        <rect x="20" y="56" width="6" height="8" fill="#FFF" />
+                        <rect x="32" y="56" width="6" height="8" fill="#FFF" />
+                        <rect x="20" y="70" width="6" height="8" fill="#FFF" />
+                        <rect x="32" y="70" width="6" height="8" fill="#FFF" />
+                        <!-- Toiture / Flèche Orange Géomètre -->
+                        <path d="M40 35 L120 10 L140 25 L120 40 Z" fill="#F58220" />
+                        <!-- Texte GÉOBAT Bleu -->
+                        <text x="50" y="85" font-family="Arial, sans-serif" font-weight="900" font-size="36" fill="#1B75BC" letter-spacing="-1">GÉOBAT</text>
+                        <!-- T Orange -->
+                        <text x="172" y="85" font-family="Arial, sans-serif" font-weight="900" font-size="36" fill="#F58220">T</text>
+                        <!-- Trait sous-titre -->
+                        <line x1="20" y1="98" x2="185" y2="98" stroke="#000" stroke-width="2" />
+                        <text x="22" y="110" font-family="Arial, sans-serif" font-weight="bold" font-size="10" fill="#000">IVOIRE GEOMÉTRIE - BATIMENT</text>
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-xl font-black tracking-wider text-white block leading-none font-serif">IGEOBAT</span>
+                    <span class="text-[10px] text-brandOrange-500 font-bold tracking-widest uppercase">Ivoire Géométrie - Bâtiment</span>
+                </div>
+            </a>
+
+            <!-- Navigation Bureau -->
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
+                <a href="#presentation" class="hover:text-brandOrange-500 transition-colors">Présentation</a>
+                <a href="#maquette-animee" class="hover:text-brandOrange-500 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-layer-group text-xs text-brandOrange-500"></i> Présentation Animée</a>
+                <a href="#maquette3d" class="hover:text-brandOrange-500 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-cube text-xs text-brandBlue-500"></i> Maquette 3D</a>
+                <a href="#lots-surrounding" class="hover:text-brandOrange-500 transition-colors">Lots (10)</a>
+                <a href="#reservation" class="hover:text-brandOrange-500 transition-colors">Réservation VIP</a>
+            </nav>
+
+            <!-- Bouton Contact WhatsApp Direct -->
+            <a href="https://wa.me/2250779592645?text=Bonjour%20IGEOBAT,%20je%20souhaite%20des%20informations%20sur%20la%20Cité%20Résidentielle." target="_blank" class="hidden sm:flex items-center gap-2 bg-gradient-to-r from-brandOrange-500 to-brandOrange-600 text-white font-bold px-4 py-2.5 rounded-lg hover:brightness-110 transition-all text-sm shadow-lg shadow-brandOrange-500/20">
+                <i class="fa-brands fa-whatsapp text-lg"></i>
+                <span>+225 07 79 59 26 45</span>
+            </a>
+
+            <!-- Bouton Menu Mobile -->
+            <button id="mobile-menu-btn" class="md:hidden text-gray-300 hover:text-brandOrange-500 focus:outline-none p-2">
+                <i class="fa-solid fa-bars text-2xl"></i>
+            </button>
+        </div>
+
+        <!-- Menu Déroulant Mobile -->
+        <div id="mobile-menu" class="hidden md:hidden glass-panel border-b border-brandBlue-500/30 px-6 py-4 flex-col gap-4 text-sm font-medium">
+            <a href="#presentation" class="hover:text-brandOrange-500">Présentation</a>
+            <a href="#maquette-animee" class="hover:text-brandOrange-500">Présentation Animée 3D</a>
+            <a href="#maquette3d" class="hover:text-brandOrange-500">Maquette 3D Interactive</a>
+            <a href="#lots-surrounding" class="hover:text-brandOrange-500">10 Lots Périphériques</a>
+            <a href="#reservation" class="hover:text-brandOrange-500">Réservation VIP</a>
+            <a href="https://wa.me/2250779592645" target="_blank" class="flex items-center justify-center gap-2 bg-brandOrange-500 text-white font-bold py-2.5 rounded-lg">
+                <i class="fa-brands fa-whatsapp"></i> WhatsApp Direct
+            </a>
+        </div>
+    </header>
+
+    <!-- SECTION HERO BANNER -->
+    <section class="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-12 gap-12 items-center">
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brandOrange-500/10 border border-brandOrange-500/40 text-brandOrange-500 text-xs font-bold uppercase tracking-wider">
+                        <span class="w-2.5 h-2.5 rounded-full bg-brandOrange-500 animate-ping"></span>
+                        Programme Immobilier Clôturé & Sécurisé
+                    </div>
+                    
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-serif font-extrabold text-white leading-tight">
+                        Cité Résidentielle <br>
+                        <span class="text-brandOrange-500">Habitat Extension</span>
+                    </h1>
+                    
+                    <p class="text-gray-300 text-base sm:text-lg max-w-2xl leading-relaxed">
+                        Un habitat moderne pensé pour le climat africain. <strong class="text-white">IGEOBAT</strong> vous présente sa cité comprenant 8 maisons clés en main, des studios à l'américaine, une salle de gym et 10 lots viabilisés avec ACD.
+                    </p>
+
+                    <div class="flex flex-wrap items-center gap-4 pt-4">
+                        <a href="#maquette-animee" class="flex items-center gap-3 bg-gradient-to-r from-brandOrange-500 to-brandOrange-600 text-white font-bold px-6 py-3.5 rounded-xl hover:brightness-110 transition-all shadow-lg shadow-brandOrange-500/30">
+                            <i class="fa-solid fa-play text-lg"></i>
+                            <span>Voir la Présentation Animée</span>
+                        </a>
+
+                        <a href="#maquette3d" class="flex items-center gap-2 border border-brandBlue-500/60 hover:border-brandBlue-500 text-white font-semibold px-6 py-3.5 rounded-xl transition-all hover:bg-brandBlue-500/20">
+                            <i class="fa-solid fa-cube text-brandBlue-500"></i>
+                            <span>Maquette 3D Interactive</span>
+                        </a>
+                    </div>
+
+                    <!-- Métriques clés -->
+                    <div class="grid grid-cols-3 gap-4 pt-8 border-t border-brandBlue-500/30">
+                        <div>
+                            <div class="text-2xl sm:text-3xl font-bold text-brandOrange-500 font-serif">12</div>
+                            <div class="text-xs text-gray-300 uppercase font-semibold">Studios R+1</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl sm:text-3xl font-bold text-brandBlue-500 font-serif">6</div>
+                            <div class="text-xs text-gray-300 uppercase font-semibold">Villas 1 & 2 CH</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl sm:text-3xl font-bold text-green-400 font-serif">100%</div>
+                            <div class="text-xs text-gray-300 uppercase font-semibold">ACD & Borne</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aperçu visuel Maquette Animée -->
+                <div class="lg:col-span-5">
+                    <div class="relative rounded-2xl overflow-hidden orange-border-glow bg-cardBg p-4 group">
+                        <div class="relative rounded-xl overflow-hidden h-80 bg-brandBlue-900 flex items-center justify-center">
+                            <!-- Visualisation graphique inspirée de la vidéo -->
+                            <div class="text-center p-6 space-y-4">
+                                <div class="w-20 h-20 mx-auto rounded-full bg-brandOrange-500/20 border-2 border-brandOrange-500 flex items-center justify-center text-brandOrange-500 text-3xl shadow-xl">
+                                    <i class="fa-solid fa-drafting-compass"></i>
+                                </div>
+                                <div>
+                                    <span class="text-xs text-brandOrange-500 font-bold uppercase tracking-widest">Plan & Maquette 3D</span>
+                                    <h3 class="text-white font-bold text-xl mt-1">Impression & Construction Séquentielle</h3>
+                                    <p class="text-gray-400 text-xs mt-2">Du terrain naturel au lotissement viabilisé achevé</p>
+                                </div>
+                                <a href="#maquette-animee" class="inline-block bg-brandBlue-500 hover:bg-brandBlue-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+                                    Lancer la Démonstration
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION PRÉSENTATION ANIMÉE (REMPLACE LA VIDÉO MP4 ET REPRODUIT LA SECONDE PAR SECONDE DU PROJET) -->
+    <section id="maquette-animee" class="py-20 bg-brandBlue-900/60 border-y border-brandBlue-500/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-xs font-bold uppercase tracking-widest text-brandOrange-500">Visualisation dynamique</span>
+                <h2 class="text-3xl sm:text-4xl font-serif font-bold text-white mt-1">Présentation Séquentielle du Projet</h2>
+                <p class="text-gray-300 text-sm mt-2">Suivez les étapes de construction et d'aménagement de la cité en 3D animée.</p>
+                <div class="w-24 h-1 bg-brandOrange-500 mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <div class="grid lg:grid-cols-12 gap-8 items-center">
+                <!-- Visualiseur d'étapes de la maquette -->
+                <div class="lg:col-span-8 bg-cardBg rounded-2xl p-6 orange-border-glow min-h-[420px] flex flex-col justify-between relative overflow-hidden">
+                    
+                    <!-- Titre de l'étape courante -->
+                    <div class="flex items-center justify-between border-b border-brandBlue-500/30 pb-4 mb-4">
+                        <div class="flex items-center gap-3">
+                            <span id="step-number" class="w-8 h-8 rounded-lg bg-brandOrange-500 text-white font-bold text-sm flex items-center justify-center">01</span>
+                            <div>
+                                <h3 id="step-title" class="text-lg font-bold text-white">01 - LE TERRAIN NATUREL</h3>
+                                <p id="step-subtitle" class="text-xs text-brandOrange-500">CÔTE D'IVOIRE • Site relevé & borné</p>
+                            </div>
+                        </div>
+                        <span id="step-progress-badge" class="text-xs font-mono text-gray-400 bg-brandBlue-900 px-3 py-1 rounded-full border border-brandBlue-500/40">Étape 1 / 5</span>
+                    </div>
+
+                    <!-- Canevas d'Animation 2D/3D dynamique -->
+                    <div id="step-canvas-container" class="w-full h-64 bg-brandBlue-dark rounded-xl border border-brandBlue-500/30 relative flex items-center justify-center overflow-hidden">
+                        <!-- Étape 1 : Terrain -->
+                        <div id="step-view-1" class="step-view text-center space-y-3 p-4">
+                            <div class="inline-block p-4 rounded-full bg-green-900/30 border border-green-500 text-green-400 text-4xl mb-2">
+                                <i class="fa-solid fa-tree"></i>
+                            </div>
+                            <h4 class="text-white font-bold">Un site prêt à être aménagé</h4>
+                            <p class="text-xs text-gray-300 max-w-md mx-auto">Terrain viabilisé, borné par géomètre expert avec ACD officiel avant tout démarrage des travaux.</p>
+                        </div>
+
+                        <!-- Étape 2 : Plan de masse -->
+                        <div id="step-view-2" class="step-view hidden text-center space-y-3 p-4">
+                            <div class="grid grid-cols-3 gap-2 max-w-sm mx-auto p-3 bg-brandBlue-900 border border-brandOrange-500 rounded-lg">
+                                <div class="bg-brandOrange-500/20 text-brandOrange-500 text-[10px] p-2 rounded">VILLAS 2 CH</div>
+                                <div class="bg-brandBlue-500/20 text-brandBlue-500 text-[10px] p-2 rounded">STUDIOS R+1</div>
+                                <div class="bg-green-500/20 text-green-400 text-[10px] p-2 rounded">PARKING</div>
+                            </div>
+                            <h4 class="text-white font-bold">Plan de Masse & Aménagement (Échelle 1/500)</h4>
+                            <p class="text-xs text-gray-300 max-w-md mx-auto">Organisation optimisée comprenant logements, voies bitumées, salle de gym et aire de repos.</p>
+                        </div>
+
+                        <!-- Étape 3 : La cité en 3D -->
+                        <div id="step-view-3" class="step-view hidden text-center space-y-3 p-4">
+                            <div class="flex justify-center gap-4 text-3xl text-brandOrange-500">
+                                <i class="fa-solid fa-building"></i>
+                                <i class="fa-solid fa-house"></i>
+                                <i class="fa-solid fa-dumbbell"></i>
+                            </div>
+                            <h4 class="text-white font-bold">Modélisation de la Cité Clôturée</h4>
+                            <p class="text-xs text-gray-300 max-w-md mx-auto">Entrée sécurisée avec guérite de contrôle, espaces verts et éclairage solaire public.</p>
+                        </div>
+
+                        <!-- Étape 4 : Les Logements -->
+                        <div id="step-view-4" class="step-view hidden text-center space-y-3 p-4">
+                            <div class="grid grid-cols-3 gap-3 max-w-md mx-auto text-left">
+                                <div class="p-2 bg-brandBlue-900 rounded border border-brandBlue-500">
+                                    <div class="text-[10px] font-bold text-brandOrange-500">STUDIO R+1</div>
+                                    <div class="text-[9px] text-gray-300">≈ 30 m²</div>
+                                </div>
+                                <div class="p-2 bg-brandBlue-900 rounded border border-brandBlue-500">
+                                    <div class="text-[10px] font-bold text-brandOrange-500">1 CH-SALON</div>
+                                    <div class="text-[9px] text-gray-300">≈ 42 m²</div>
+                                </div>
+                                <div class="p-2 bg-brandBlue-900 rounded border border-brandBlue-500">
+                                    <div class="text-[10px] font-bold text-brandOrange-500">2 CH-SALON</div>
+                                    <div class="text-[9px] text-gray-300">≈ 63 m²</div>
+                                </div>
+                            </div>
+                            <h4 class="text-white font-bold">Logements Clés en Main</h4>
+                            <p class="text-xs text-gray-300 max-w-md mx-auto">Cuisine américaine, douche et WC intégrés avec de grands espaces de vie.</p>
+                        </div>
+
+                        <!-- Étape 5 : Climat Africain -->
+                        <div id="step-view-5" class="step-view hidden text-center space-y-3 p-4">
+                            <div class="flex justify-center gap-6 text-brandOrange-500 text-2xl">
+                                <div><i class="fa-solid fa-sun block"></i><span class="text-[9px] text-gray-300">Solaire</span></div>
+                                <div><i class="fa-solid fa-wind block"></i><span class="text-[9px] text-gray-300">Aération</span></div>
+                                <div><i class="fa-solid fa-leaf block"></i><span class="text-[9px] text-gray-300">Ombrage</span></div>
+                            </div>
+                            <h4 class="text-white font-bold">Conçu pour le Climat Africain</h4>
+                            <p class="text-xs text-gray-300 max-w-md mx-auto">Toitures débordantes, ventilation croisée naturelle et éclairage solaire autonome.</p>
+                        </div>
+                    </div>
+
+                    <!-- Contrôles d'animation -->
+                    <div class="flex items-center justify-between pt-4 border-t border-brandBlue-500/30">
+                        <button onclick="prevAnimStep()" class="px-4 py-2 rounded-lg bg-brandBlue-900 text-white hover:bg-brandBlue-500 text-xs font-bold transition-colors">
+                            <i class="fa-solid fa-chevron-left mr-1"></i> Précédent
+                        </button>
+
+                        <button id="play-pause-anim-btn" onclick="toggleAnimAutoPlay()" class="px-5 py-2 rounded-lg bg-brandOrange-500 text-white hover:bg-brandOrange-600 text-xs font-bold transition-colors shadow-lg">
+                            <i class="fa-solid fa-pause mr-1" id="anim-btn-icon"></i> Pause Animation
+                        </button>
+
+                        <button onclick="nextAnimStep()" class="px-4 py-2 rounded-lg bg-brandBlue-900 text-white hover:bg-brandBlue-500 text-xs font-bold transition-colors">
+                            Suivant <i class="fa-solid fa-chevron-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chapitres / Sommaire interactif -->
+                <div class="lg:col-span-4 space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-brandOrange-500 mb-2">Sommaire de la Présentation :</h4>
+                    
+                    <div onclick="setAnimStep(1)" id="chapter-btn-1" class="p-3.5 rounded-xl bg-cardBg border border-brandOrange-500 cursor-pointer transition-all flex items-center gap-3">
+                        <span class="text-brandOrange-500 font-bold font-mono text-sm">01</span>
+                        <div>
+                            <span class="text-sm font-bold text-white block leading-none">01 - Le Terrain</span>
+                            <span class="text-[11px] text-gray-400">Site naturel prêt à aménager</span>
+                        </div>
+                    </div>
+
+                    <div onclick="setAnimStep(2)" id="chapter-btn-2" class="p-3.5 rounded-xl bg-cardBg border border-brandBlue-500/30 hover:border-brandOrange-500 cursor-pointer transition-all flex items-center gap-3">
+                        <span class="text-brandBlue-500 font-bold font-mono text-sm">02</span>
+                        <div>
+                            <span class="text-sm font-bold text-white block leading-none">02 - Le Plan de Masse</span>
+                            <span class="text-[11px] text-gray-400">Répartition des îlots & voies</span>
+                        </div>
+                    </div>
+
+                    <div onclick="setAnimStep(3)" id="chapter-btn-3" class="p-3.5 rounded-xl bg-cardBg border border-brandBlue-500/30 hover:border-brandOrange-500 cursor-pointer transition-all flex items-center gap-3">
+                        <span class="text-brandBlue-500 font-bold font-mono text-sm">03</span>
+                        <div>
+                            <span class="text-sm font-bold text-white block leading-none">03 - La Cité en 3D</span>
+                            <span class="text-[11px] text-gray-400">Vue d'ensemble et équipements</span>
+                        </div>
+                    </div>
+
+                    <div onclick="setAnimStep(4)" id="chapter-btn-4" class="p-3.5 rounded-xl bg-cardBg border border-brandBlue-500/30 hover:border-brandOrange-500 cursor-pointer transition-all flex items-center gap-3">
+                        <span class="text-brandBlue-500 font-bold font-mono text-sm">04</span>
+                        <div>
+                            <span class="text-sm font-bold text-white block leading-none">04 - Les Logements</span>
+                            <span class="text-[11px] text-gray-400">Studios R+1 & Villas</span>
+                        </div>
+                    </div>
+
+                    <div onclick="setAnimStep(5)" id="chapter-btn-5" class="p-3.5 rounded-xl bg-cardBg border border-brandBlue-500/30 hover:border-brandOrange-500 cursor-pointer transition-all flex items-center gap-3">
+                        <span class="text-brandBlue-500 font-bold font-mono text-sm">05</span>
+                        <div>
+                            <span class="text-sm font-bold text-white block leading-none">05 - Climat Africain</span>
+                            <span class="text-[11px] text-gray-400">Confort thermiques & Solaire</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION MAQUETTE 3D INTERACTIVE (THREE.JS - COULEURS HARMONISÉES BLEU/ORANGE IGEOBAT) -->
+    <section id="maquette3d" class="py-20 border-t border-brandBlue-500/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-brandOrange-500">Moteur 3D IGEOBAT</span>
+                    <h3 class="text-3xl font-serif font-bold text-white">Maquette Virtuelle Spatiale</h3>
+                    <p class="text-gray-300 text-sm mt-1">Orientez et visitez la cité grâce au contrôle 3D interactif.</p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3">
+                    <button onclick="reset3DCamera()" class="px-4 py-2 rounded-lg bg-cardBg border border-brandOrange-500/50 text-xs font-bold text-white hover:bg-brandOrange-500 transition-colors">
+                        <i class="fa-solid fa-rotate-right mr-1 text-brandOrange-500"></i> Réinitialiser Vue
+                    </button>
+                    <button id="view-mode-btn" onclick="toggle2D3DView()" class="px-4 py-2 rounded-lg bg-brandBlue-500 border border-brandBlue-500 text-xs font-bold text-white hover:bg-brandBlue-700 transition-colors">
+                        <i class="fa-solid fa-layer-group mr-1"></i> Basculer Vue Plan 2D
+                    </button>
+                </div>
+            </div>
+
+            <!-- Container Canvas 3D -->
+            <div class="grid lg:grid-cols-12 gap-6 items-start">
+                <div class="lg:col-span-8 relative bg-brandBlue-dark rounded-2xl overflow-hidden blue-border-glow h-[500px]">
+                    <div id="three-canvas-container" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+
+                    <div class="absolute bottom-4 left-4 bg-brandBlue-900/90 backdrop-blur-md px-3.5 py-2 rounded-lg border border-brandOrange-500/40 text-xs text-gray-200 flex items-center gap-2">
+                        <i class="fa-solid fa-hand-pointer text-brandOrange-500 animate-bounce"></i>
+                        <span>Cliquez sur une villa pour consulter la fiche produit</span>
+                    </div>
+                </div>
+
+                <!-- Fiche d'information -->
+                <div class="lg:col-span-4 bg-cardBg rounded-2xl p-6 orange-border-glow h-[500px] flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between border-b border-brandBlue-500/30 pb-4 mb-4">
+                            <h4 id="selected-building-title" class="text-lg font-bold text-white font-serif">Vue Globale IGEOBAT</h4>
+                            <span id="selected-building-badge" class="bg-brandOrange-500/20 text-brandOrange-500 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Vue générale</span>
+                        </div>
+
+                        <div id="selected-building-details" class="space-y-4">
+                            <p class="text-sm text-gray-300 leading-relaxed">
+                                Sélectionnez les éléments dans le plan 3D pour découvrir les spécifications techniques et les disponibilités.
+                            </p>
+
+                            <div class="space-y-2 text-xs text-gray-300 border-t border-brandBlue-500/20 pt-4">
+                                <div class="flex justify-between py-1">
+                                    <span>Titres de Propriété :</span>
+                                    <strong class="text-brandOrange-500">ACD Garanti</strong>
+                                </div>
+                                <div class="flex justify-between py-1">
+                                    <span>Espaces de Santé :</span>
+                                    <strong class="text-white">Salle de Gym</strong>
+                                </div>
+                                <div class="flex justify-between py-1">
+                                    <span>Éclairage :</span>
+                                    <strong class="text-white">Autonome Solaire</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-brandBlue-500/30">
+                        <a id="building-action-btn" href="#reservation" class="w-full block text-center bg-gradient-to-r from-brandOrange-500 to-brandOrange-600 text-white font-bold py-3.5 rounded-xl hover:brightness-110 transition-all text-sm uppercase">
+                            Réserver ce logement
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- JAVASCRIPT ANIMATION ET COULEURS SOUPLES -->
+    <script>
+        // --- ANIMATION SÉQUENTIELLE AUTOMATIQUE ET MANUELLE ---
+        let currentAnimStep = 1;
+        let animInterval = null;
+
+        const stepsData = [
+            {
+                title: "01 - LE TERRAIN NATUREL",
+                subtitle: "CÔTE D'IVOIRE • Site relevé & borné",
+                badge: "Étape 1 / 5"
+            },
+            {
+                title: "02 - LE PLAN DE MASSE",
+                subtitle: "Plan indicatif • Échelle 1/500",
+                badge: "Étape 2 / 5"
+            },
+            {
+                title: "03 - LA CITÉ EN 3D",
+                subtitle: "Maquette d'ensemble avec clôture",
+                badge: "Étape 3 / 5"
+            },
+            {
+                title: "04 - LES LOGEMENTS",
+                subtitle: "Studios R+1 & Maisons individuelles",
+                badge: "Étape 4 / 5"
+            },
+            {
+                title: "05 - ADAPTATION CLIMATIQUE",
+                subtitle: "Pensée pour le climat africain",
+                badge: "Étape 5 / 5"
+            }
+        ];
+
+        function setAnimStep(step) {
+            currentAnimStep = step;
+            document.getElementById('step-number').textContent = `0${step}`;
+            document.getElementById('step-title').textContent = stepsData[step - 1].title;
+            document.getElementById('step-subtitle').textContent = stepsData[step - 1].subtitle;
+            document.getElementById('step-progress-badge').textContent = stepsData[step - 1].badge;
+
+            // Masquer toutes les étapes et afficher la courante
+            for (let i = 1; i <= 5; i++) {
+                const view = document.getElementById(`step-view-${i}`);
+                const chapter = document.getElementById(`chapter-btn-${i}`);
+                if (i === step) {
+                    view.classList.remove('hidden');
+                    chapter.className = "p-3.5 rounded-xl bg-cardBg border border-brandOrange-500 cursor-pointer transition-all flex items-center gap-3";
+                } else {
+                    view.classList.add('hidden');
+                    chapter.className = "p-3.5 rounded-xl bg-cardBg border border-brandBlue-500/30 hover:border-brandOrange-500 cursor-pointer transition-all flex items-center gap-3";
+                }
+            }
+        }
+
+        function nextAnimStep() {
+            currentAnimStep = currentAnimStep >= 5 ? 1 : currentAnimStep + 1;
+            setAnimStep(currentAnimStep);
+        }
+
+        function prevAnimStep() {
+            currentAnimStep = currentAnimStep <= 1 ? 5 : currentAnimStep - 1;
+            setAnimStep(currentAnimStep);
+        }
+
+        function startAutoPlay() {
+            if (!animInterval) {
+                animInterval = setInterval(() => {
+                    nextAnimStep();
+                }, 4000);
+            }
+        }
+
+        function toggleAnimAutoPlay() {
+            const btnIcon = document.getElementById('anim-btn-icon');
+            if (animInterval) {
+                clearInterval(animInterval);
+                animInterval = null;
+                btnIcon.className = "fa-solid fa-play mr-1";
+            } else {
+                startAutoPlay();
+                btnIcon.className = "fa-solid fa-pause mr-1";
+            }
+        }
+
+        // Démarrer l'animation automatique dès le chargement
+        startAutoPlay();
+    </script>
+    <style>
+        body {
+            background-color: #0b0d10;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #FFF6D1 0%, #D4AF37 50%, #997A15 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gold-border-glow {
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        .glass-panel {
+            background: rgba(19, 23, 30, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        canvas {
+            outline: none;
+        }
+        /* Custom Video Progress Slider */
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 14px;
+            width: 14px;
+            border-radius: 50%;
+            background: #d4af37;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.8);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-gold-500 selection:text-black">
+
+    <!-- En-tête Navigation Fixe -->
+    <header class="fixed top-0 left-0 w-full z-40 glass-panel border-b border-gold-500/20 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Logo SVG Officiel IGEOBAT -->
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-black/60 border border-gold-500/40 p-1 group-hover:border-gold-500 transition-colors">
+                    <svg viewBox="0 0 100 100" class="w-full h-full">
+                        <!-- Contour IGEOBAT Hexagone/Bâtiment -->
+                        <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" fill="none" stroke="#D4AF37" stroke-width="4" />
+                        <!-- Bâtiments Stylisés -->
+                        <rect x="25" y="40" width="15" height="35" fill="#D4AF37" />
+                        <rect x="44" y="25" width="15" height="50" fill="#FFF6D1" />
+                        <rect x="63" y="48" width="15" height="27" fill="#AA820A" />
+                        <!-- Théodolite Géomètre Synthétique -->
+                        <circle cx="50" cy="20" r="4" fill="#D4AF37" />
+                        <line x1="20" y1="80" x2="80" y2="80" stroke="#D4AF37" stroke-width="3" />
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-xl font-bold tracking-widest text-white block leading-none font-serif">IGEOBAT</span>
+                    <span class="text-[10px] text-gold-500 font-medium tracking-wider uppercase">Ivoire Géométrie Bâtiment</span>
+                </div>
+            </a>
+
+            <!-- Navigation Bureau -->
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
+                <a href="#presentation" class="hover:text-gold-500 transition-colors">Présentation</a>
+                <a href="#video-section" class="hover:text-gold-500 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-play text-xs text-gold-500"></i> Vidéo Projet</a>
+                <a href="#maquette3d" class="hover:text-gold-500 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-cube text-xs text-gold-500"></i> Maquette 3D</a>
+                <a href="#lots-surrounding" class="hover:text-gold-500 transition-colors">Lots Restants (10)</a>
+                <a href="#reservation" class="hover:text-gold-500 transition-colors">Réservation VIP</a>
+            </nav>
+
+            <!-- Bouton Contact WhatsApp Direct -->
+            <a href="https://wa.me/2250779592645?text=Bonjour%20IGEOBAT,%20je%20souhaite%20des%20informations%20sur%20la%20Cité%20Résidentielle." target="_blank" class="hidden sm:flex items-center gap-2 bg-gradient-to-r from-gold-600 to-gold-500 text-black font-semibold px-4 py-2.5 rounded-lg hover:brightness-110 transition-all text-sm shadow-lg shadow-gold-500/20">
+                <i class="fa-brands fa-whatsapp text-lg"></i>
+                <span>+225 07 79 59 26 45</span>
+            </a>
+
+            <!-- Bouton Menu Mobile -->
+            <button id="mobile-menu-btn" class="md:hidden text-gray-300 hover:text-gold-500 focus:outline-none p-2">
+                <i class="fa-solid fa-bars text-2xl"></i>
+            </button>
+        </div>
+
+        <!-- Menu Déroulant Mobile -->
+        <div id="mobile-menu" class="hidden md:hidden glass-panel border-b border-gold-500/20 px-6 py-4 flex-col gap-4 text-sm font-medium">
+            <a href="#presentation" class="hover:text-gold-500">Présentation</a>
+            <a href="#video-section" class="hover:text-gold-500">Vidéo du Projet</a>
+            <a href="#maquette3d" class="hover:text-gold-500">Maquette 3D Interactive</a>
+            <a href="#lots-surrounding" class="hover:text-gold-500">10 Lots Périphériques</a>
+            <a href="#reservation" class="hover:text-gold-500">Réservation VIP</a>
+            <a href="https://wa.me/2250779592645" target="_blank" class="flex items-center justify-center gap-2 bg-gold-500 text-black font-semibold py-2.5 rounded-lg">
+                <i class="fa-brands fa-whatsapp"></i> WhatsApp Direct
+            </a>
+        </div>
+    </header>
+
+    <!-- SECTION HERO BANNER -->
+    <section class="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-gold-900/30 via-darkBg to-darkBg -z-10"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-12 gap-12 items-center">
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/30 text-gold-500 text-xs font-semibold uppercase tracking-wider">
+                        <span class="w-2 h-2 rounded-full bg-gold-500 animate-ping"></span>
+                        Nouveau Programme Immobilier d'Exception
+                    </div>
+                    
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-white leading-tight">
+                        Cité Résidentielle <br>
+                        <span class="gold-gradient-text">Habitat Extension</span>
+                    </h1>
+                    
+                    <p class="text-gray-300 text-base sm:text-lg max-w-2xl leading-relaxed">
+                        Conçue par <strong class="text-gold-500">IGEOBAT</strong> (Ivoire Géométrie Bâtiment), découvrez une cité moderne fermée et sécurisée intégrant 8 logements VIP, des aires de jeux, une salle de sport et 10 lots périphériques aménagés avec ACD.
+                    </p>
+
+                    <div class="flex flex-wrap items-center gap-4 pt-4">
+                        <button onclick="openVideoModal()" class="flex items-center gap-3 bg-gradient-to-r from-gold-500 to-gold-600 text-black font-bold px-6 py-3.5 rounded-xl hover:brightness-110 transition-all shadow-lg shadow-gold-500/25">
+                            <i class="fa-solid fa-circle-play text-xl"></i>
+                            <span>Voir la Vidéo 3D du Projet</span>
+                        </button>
+
+                        <a href="#maquette3d" class="flex items-center gap-2 border border-gold-500/40 hover:border-gold-500 text-white font-semibold px-6 py-3.5 rounded-xl transition-all hover:bg-gold-500/10">
+                            <i class="fa-solid fa-cube text-gold-500"></i>
+                            <span>Explorer la Maquette 3D</span>
+                        </a>
+                    </div>
+
+                    <!-- Métriques clés -->
+                    <div class="grid grid-cols-3 gap-4 pt-8 border-t border-gold-500/20">
+                        <div>
+                            <div class="text-2xl sm:text-3xl font-bold text-gold-500 font-serif">8</div>
+                            <div class="text-xs text-gray-400 uppercase tracking-wider">Logements Clés en Main</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl sm:text-3xl font-bold text-gold-500 font-serif">10</div>
+                            <div class="text-xs text-gray-400 uppercase tracking-wider">Lots Périphériques</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl sm:text-3xl font-bold text-gold-500 font-serif">100%</div>
+                            <div class="text-xs text-gray-400 uppercase tracking-wider">Sécurisé & Garanti (ACD)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aperçu Vidéo / Miniature Interactive -->
+                <div class="lg:col-span-5">
+                    <div class="relative rounded-2xl overflow-hidden gold-border-glow group cursor-pointer" onclick="openVideoModal()">
+                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80" alt="Cité IGEOBAT Villa" class="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-between p-6">
+                            <div class="self-end bg-black/60 backdrop-blur-md px-3 py-1 rounded-md text-xs text-gold-500 font-mono border border-gold-500/30">
+                                HD 1080p • Animation 3D
+                            </div>
+                            
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-full bg-gold-500 text-black flex items-center justify-center text-2xl shadow-xl group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-play ml-1"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-white font-bold text-lg">Visite Virtuelle Guidée</h3>
+                                    <p class="text-xs text-gray-300">Cliquez pour lancer le lecteur vidéo complet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION PRÉSENTATION DES BÂTIMENTS ET LOGEMENTS -->
+    <section id="presentation" class="py-20 bg-cardBg/50 relative border-y border-gold-500/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-xs font-bold uppercase tracking-widest text-gold-500 mb-2">Composantes de la Cité</h2>
+                <h3 class="text-3xl sm:text-4xl font-serif font-bold text-white">Un Cadre de Vie Privilégié et Moderne</h3>
+                <div class="w-20 h-1 bg-gold-500 mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Carte 1: Studios Duplex -->
+                <div class="bg-cardBg rounded-2xl p-6 gold-border-glow hover:-translate-y-2 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-xl bg-gold-500/10 border border-gold-500/30 flex items-center justify-center text-gold-500 text-xl mb-6">
+                        <i class="fa-solid fa-building"></i>
+                    </div>
+                    <span class="text-xs font-semibold text-gold-500 uppercase tracking-wider">4 Unités Disponibles</span>
+                    <h4 class="text-xl font-bold text-white mt-1 mb-3">Studios Américains R+1</h4>
+                    <p class="text-gray-400 text-sm mb-6 leading-relaxed">
+                        Studios haut de gamme conçus sur 2 niveaux. Séjour spacieux, cuisine ouverte style américain et suite parentale à l'étage avec balcon privé.
+                    </p>
+                    <ul class="text-xs text-gray-300 space-y-2 border-t border-gray-800 pt-4">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-500"></i> Architecture moderne optimisée</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-500"></i> Finitions de luxe importées</li>
+                    </ul>
+                </div>
+
+                <!-- Carte 2: Villas 2 & 3 Pièces -->
+                <div class="bg-cardBg rounded-2xl p-6 gold-border-glow hover:-translate-y-2 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-xl bg-gold-500/10 border border-gold-500/30 flex items-center justify-center text-gold-500 text-xl mb-6">
+                        <i class="fa-solid fa-house-chimney"></i>
+                    </div>
+                    <span class="text-xs font-semibold text-gold-500 uppercase tracking-wider">4 Unités Disponibles</span>
+                    <h4 class="text-xl font-bold text-white mt-1 mb-3">Villas Base 1 CH & 2 CH</h4>
+                    <p class="text-gray-400 text-sm mb-6 leading-relaxed">
+                        Villas de plain-pied confortables avec jardin privé, parking, pièces lumineuses, parfaites pour jeunes couples ou investissement locatif à forte rentabilité.
+                    </p>
+                    <ul class="text-xs text-gray-300 space-y-2 border-t border-gray-800 pt-4">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-500"></i> Jardin et espace vert privé</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-500"></i> Place de parking dédiée</li>
+                    </ul>
+                </div>
+
+                <!-- Carte 3: Équipements de la Cité -->
+                <div class="bg-cardBg rounded-2xl p-6 gold-border-glow hover:-translate-y-2 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-xl bg-gold-500/10 border border-gold-500/30 flex items-center justify-center text-gold-500 text-xl mb-6">
+                        <i class="fa-solid fa-dumbbell"></i>
+                    </div>
+                    <span class="text-xs font-semibold text-gold-500 uppercase tracking-wider">Infrastructures Communes</span>
+                    <h4 class="text-xl font-bold text-white mt-1 mb-3">Salle de Gym & Espace Enfants</h4>
+                    <p class="text-gray-400 text-sm mb-6 leading-relaxed">
+                        La cité intègre une salle de sport moderne entièrement équipée, un espace récréatif sécurisé pour enfants et un poste de garde à contrôle d'accès 24h/7j.
+                    </p>
+                    <ul class="text-xs text-gray-300 space-y-2 border-t border-gray-800 pt-4">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-500"></i> Sécurité renforcée avec portail auto</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-500"></i> Aire de jeux et fitness intégrés</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION VIDÉO & NARRATION INTERACTIVE DE PRÉSENTATION -->
+    <section id="video-section" class="py-20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-12 gap-10 items-center">
+                
+                <!-- Vidéo HTML5 intégrée avec Fallbacks -->
+                <div class="lg:col-span-7">
+                    <div class="bg-cardBg rounded-2xl p-3 border border-gold-500/30 shadow-2xl relative">
+                        <div class="relative rounded-xl overflow-hidden aspect-video bg-black group">
+                            
+                            <!-- Élément Vidéo HTML5 Principal -->
+                            <video id="main-project-video" class="w-full h-full object-cover" poster="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80">
+                                <!-- Source vidéo mp4 principale -->
+                                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
+                                <!-- Source vidéo fallback alternative -->
+                                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+                                Votre navigateur ne supporte pas la lecture de vidéo HTML5.
+                            </video>
+
+                            <!-- Overlay Contrôle personnalisé lors du survol -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-100 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="bg-black/70 text-gold-500 border border-gold-500/40 text-xs px-3 py-1 rounded-full font-mono">
+                                        <i class="fa-solid fa-cube text-xs mr-1"></i> Animation 3D Officielle
+                                    </span>
+                                    <button onclick="openVideoModal()" class="text-white hover:text-gold-500 bg-black/60 p-2 rounded-lg border border-white/10" title="Agrandir en plein écran">
+                                        <i class="fa-solid fa-expand"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Barre de lecture sur la vidéo -->
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-3">
+                                        <button id="inline-play-btn" onclick="toggleInlineVideo()" class="w-10 h-10 rounded-full bg-gold-500 text-black flex items-center justify-center font-bold hover:scale-105 transition-transform">
+                                            <i class="fa-solid fa-play" id="inline-play-icon"></i>
+                                        </button>
+                                        
+                                        <input type="range" id="inline-seek-bar" value="0" min="0" max="100" class="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-gold-500" onchange="seekInlineVideo(this.value)">
+                                        
+                                        <button onclick="toggleInlineMute()" class="text-white hover:text-gold-500 text-sm">
+                                            <i class="fa-solid fa-volume-high" id="inline-volume-icon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Texte descriptif & Chapitres Vidéo -->
+                <div class="lg:col-span-5 space-y-6">
+                    <span class="text-xs font-bold uppercase tracking-widest text-gold-500">Vidéo de Présentation</span>
+                    <h3 class="text-3xl font-serif font-bold text-white">Découvrez le Projet dans les Moindres Détails</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed">
+                        Cette vidéo haute définition réalisée par les ingénieurs d'<strong>IGEOBAT</strong> vous présente l'implantation précise de la cité, la disposition des voies d'accès et la qualité architecturale des logements.
+                    </p>
+
+                    <!-- Chapitres Interactifs -->
+                    <div class="space-y-3 pt-2">
+                        <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Chapitres de la Présentation :</h4>
+                        
+                        <div onclick="jumpVideoTo(0)" class="flex items-center justify-between p-3 rounded-xl bg-cardBg border border-gold-500/10 hover:border-gold-500/50 cursor-pointer transition-all hover:bg-gold-500/5">
+                            <div class="flex items-center gap-3">
+                                <span class="text-gold-500 font-mono text-sm">01</span>
+                                <span class="text-sm font-medium text-white">Vue d'ensemble du Terrain & ACD</span>
+                            </div>
+                            <span class="text-xs text-gray-400 font-mono">0:00</span>
+                        </div>
+
+                        <div onclick="jumpVideoTo(10)" class="flex items-center justify-between p-3 rounded-xl bg-cardBg border border-gold-500/10 hover:border-gold-500/50 cursor-pointer transition-all hover:bg-gold-500/5">
+                            <div class="flex items-center gap-3">
+                                <span class="text-gold-500 font-mono text-sm">02</span>
+                                <span class="text-sm font-medium text-white">Plan de Masse & Aménagement</span>
+                            </div>
+                            <span class="text-xs text-gray-400 font-mono">0:10</span>
+                        </div>
+
+                        <div onclick="jumpVideoTo(20)" class="flex items-center justify-between p-3 rounded-xl bg-cardBg border border-gold-500/10 hover:border-gold-500/50 cursor-pointer transition-all hover:bg-gold-500/5">
+                            <div class="flex items-center gap-3">
+                                <span class="text-gold-500 font-mono text-sm">03</span>
+                                <span class="text-sm font-medium text-white">Architecture des Villas & Studios</span>
+                            </div>
+                            <span class="text-xs text-gray-400 font-mono">0:20</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION SIMULATEUR MAQUETTE 3D INTERACTIVE (THREE.JS) -->
+    <section id="maquette3d" class="py-20 bg-cardBg/30 border-t border-gold-500/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-gold-500">Simulateur Immobilier 3D</span>
+                    <h3 class="text-3xl font-serif font-bold text-white">Maquette Virtuelle de la Cité</h3>
+                    <p class="text-gray-400 text-sm mt-1">Utilisez la souris ou vos doigts pour faire pivoter, zoomer et cliquer sur les éléments 3D.</p>
+                </div>
+
+                <!-- Contrôles du Rendu 3D -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <button onclick="reset3DCamera()" class="px-3.5 py-2 rounded-lg bg-black/60 border border-gold-500/30 text-xs font-medium text-white hover:border-gold-500 transition-colors">
+                        <i class="fa-solid fa-rotate-right mr-1 text-gold-500"></i> Réinitialiser Vue
+                    </button>
+                    <button id="view-mode-btn" onclick="toggle2D3DView()" class="px-3.5 py-2 rounded-lg bg-gold-500/20 border border-gold-500/50 text-xs font-medium text-gold-500 hover:bg-gold-500 hover:text-black transition-colors">
+                        <i class="fa-solid fa-layer-group mr-1"></i> Basculer Vue Plan 2D
+                    </button>
+                </div>
+            </div>
+
+            <!-- Container du Canvas 3D -->
+            <div class="grid lg:grid-cols-12 gap-6 items-start">
+                <div class="lg:col-span-8 relative bg-black/80 rounded-2xl overflow-hidden gold-border-glow h-[500px]">
+                    
+                    <div id="three-canvas-container" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+
+                    <!-- Indication Interactive -->
+                    <div class="absolute bottom-4 left-4 bg-black/70 backdrop-blur-md px-3 py-2 rounded-lg border border-gold-500/20 text-xs text-gray-300 flex items-center gap-2">
+                        <i class="fa-solid fa-hand-pointer text-gold-500 animate-bounce"></i>
+                        <span>Cliquez sur une villa ou la salle de sport pour voir ses détails</span>
+                    </div>
+
+                    <!-- Badge de statut du rendu -->
+                    <div class="absolute top-4 right-4 bg-black/80 backdrop-blur-md px-3 py-1 rounded-md border border-gold-500/30 text-[11px] font-mono text-gold-500">
+                        WebGL 3D Interactive Engine
+                    </div>
+                </div>
+
+                <!-- Panneau d'Information de l'Élément Sélectionné dans la Maquette -->
+                <div class="lg:col-span-4 bg-cardBg rounded-2xl p-6 gold-border-glow h-[500px] flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between border-b border-gold-500/20 pb-4 mb-4">
+                            <h4 id="selected-building-title" class="text-lg font-bold text-white font-serif">Vue Globale de la Cité</h4>
+                            <span id="selected-building-badge" class="bg-gold-500/20 text-gold-500 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Vue Générale</span>
+                        </div>
+
+                        <div id="selected-building-details" class="space-y-4">
+                            <p class="text-sm text-gray-300 leading-relaxed">
+                                Cliquez sur une structure dans le modèle 3D ci-contre (Studios, Villas, Gym, Portail) pour inspecter ses caractéristiques techniques et sa disponibilité.
+                            </p>
+
+                            <div class="space-y-2 text-xs text-gray-400 border-t border-gray-800 pt-4">
+                                <div class="flex justify-between py-1">
+                                    <span>Superficie du Site :</span>
+                                    <strong class="text-white">Aménagement Optimal</strong>
+                                </div>
+                                <div class="flex justify-between py-1">
+                                    <span>Voies d'Accès :</span>
+                                    <strong class="text-white">Bitumées / Pavées</strong>
+                                </div>
+                                <div class="flex justify-between py-1">
+                                    <span>Éclairage Public :</span>
+                                    <strong class="text-white">Solaire LED Automatique</strong>
+                                </div>
+                                <div class="flex justify-between py-1">
+                                    <span>Sécurité :</span>
+                                    <strong class="text-white">Clôture Périmétrique & Garite</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-gold-500/20">
+                        <a id="building-action-btn" href="#reservation" class="w-full block text-center bg-gold-500 text-black font-bold py-3 rounded-xl hover:brightness-110 transition-all text-sm">
+                            Réserver ce Type de Logement
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION SÉLECTEUR DES 10 LOTS PÉRIPHÉRIQUES RESTANTS -->
+    <section id="lots-surrounding" class="py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-xs font-bold uppercase tracking-widest text-gold-500">Opportunité Foncier</span>
+                <h3 class="text-3xl sm:text-4xl font-serif font-bold text-white mt-1">10 Lots Restants Autour de la Cité</h3>
+                <p class="text-gray-400 text-sm mt-3">Profitez des terrains viabilisés adjacents avec document officiel ACD. Sélectionnez votre lot ci-dessous.</p>
+                <div class="w-20 h-1 bg-gold-500 mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <!-- Grille des 10 Lots -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-10" id="lots-grid-container">
+                <!-- Généré dynamiquement en JS -->
+            </div>
+
+            <!-- Détail du Lot Sélectionné -->
+            <div id="lot-detail-box" class="bg-cardBg rounded-2xl p-6 gold-border-glow max-w-2xl mx-auto hidden transition-all">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span id="lot-detail-number" class="text-2xl font-bold text-gold-500 font-serif">Lot N° 01</span>
+                            <span id="lot-detail-status" class="bg-green-500/20 text-green-400 text-xs px-2.5 py-0.5 rounded-full font-semibold">Disponible</span>
+                        </div>
+                        <p id="lot-detail-desc" class="text-xs text-gray-300 mt-1">Superficie: 500 m² | Emplacement idéal en façade nord de la cité.</p>
+                    </div>
+
+                    <button onclick="selectLotForOrder()" class="w-full sm:w-auto bg-gradient-to-r from-gold-500 to-gold-600 text-black font-bold px-5 py-2.5 rounded-xl hover:brightness-110 text-xs whitespace-nowrap">
+                        Réserver ce Lot via WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION FORMULAIRE VIP QUALIFICATION & PRÉ-RÉSERVATION -->
+    <section id="reservation" class="py-20 bg-cardBg/60 border-t border-gold-500/20 relative">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-cardBg rounded-3xl p-8 sm:p-12 gold-border-glow relative overflow-hidden">
+                <div class="absolute -top-24 -right-24 w-60 h-60 bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="text-center mb-10">
+                    <span class="text-xs font-bold uppercase tracking-widest text-gold-500">Accès Prioritaire</span>
+                    <h3 class="text-3xl font-serif font-bold text-white mt-1">Formulaire de Pré-réservation VIP</h3>
+                    <p class="text-gray-400 text-sm mt-2">Remplissez ce formulaire d'éligibilité pour être recontacté directement par un conseiller IGEOBAT.</p>
+                </div>
+
+                <form id="vip-booking-form" onsubmit="handleFormSubmit(event)" class="space-y-6">
+                    <div class="grid sm:grid-cols-2 gap-6">
+                        <!-- Nom & Prénoms -->
+                        <div>
+                            <label class="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-2">Nom et Prénoms *</label>
+                            <input type="text" id="form-fullname" required placeholder="Ex: Jean Kouassi" class="w-full bg-black/60 border border-gold-500/30 rounded-xl px-4 py-3 text-white text-sm focus:border-gold-500 focus:outline-none transition-colors">
+                        </div>
+
+                        <!-- Numéro Téléphone / WhatsApp -->
+                        <div>
+                            <label class="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-2">Numéro Téléphone / WhatsApp *</label>
+                            <input type="tel" id="form-phone" required placeholder="Ex: +225 07 00 00 00 00" class="w-full bg-black/60 border border-gold-500/30 rounded-xl px-4 py-3 text-white text-sm focus:border-gold-500 focus:outline-none transition-colors">
+                        </div>
+                    </div>
+
+                    <div class="grid sm:grid-cols-2 gap-6">
+                        <!-- Profession -->
+                        <div>
+                            <label class="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-2">Profession / Secteur d'Activité *</label>
+                            <input type="text" id="form-profession" required placeholder="Ex: Cadre du Secteur Privé / Entrepreneur" class="w-full bg-black/60 border border-gold-500/30 rounded-xl px-4 py-3 text-white text-sm focus:border-gold-500 focus:outline-none transition-colors">
+                        </div>
+
+                        <!-- Tranche de Revenu Mensuel -->
+                        <div>
+                            <label class="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-2">Tranche Salariale / Revenu Mensuel *</label>
+                            <select id="form-income" required class="w-full bg-black/60 border border-gold-500/30 rounded-xl px-4 py-3 text-white text-sm focus:border-gold-500 focus:outline-none transition-colors">
+                                <option value="" disabled selected>Sélectionnez une tranche</option>
+                                <option value="500,000 - 1,000,000 FCFA">500,000 - 1,000,000 FCFA</option>
+                                <option value="1,000,000 - 2,500,000 FCFA">1,000,000 - 2,500,000 FCFA</option>
+                                <option value="Plus de 2,500,000 FCFA">Plus de 2,500,000 FCFA</option>
+                                <option value="Diaspora / Devise Étrangère">Diaspora / Devise Étrangère</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Choix du Produit -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-2">Intéressé par *</label>
+                        <select id="form-interest" required class="w-full bg-black/60 border border-gold-500/30 rounded-xl px-4 py-3 text-white text-sm focus:border-gold-500 focus:outline-none transition-colors">
+                            <option value="Studio Américain R+1">Studio Américain R+1</option>
+                            <option value="Villa 1 CH (Base)">Villa 1 CH (Base)</option>
+                            <option value="Villa 2 CH (Base)">Villa 2 CH (Base)</option>
+                            <option value="Un des 10 Lots Périphériques">Un des 10 Lots Périphériques</option>
+                            <option value="Investissement Global Cité">Investissement Global Cité</option>
+                        </select>
+                    </div>
+
+                    <!-- Message complémentaire -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-2">Message ou Précisions</label>
+                        <textarea id="form-message" rows="3" placeholder="Indiquez vos disponibilités pour un rendez-vous..." class="w-full bg-black/60 border border-gold-500/30 rounded-xl px-4 py-3 text-white text-sm focus:border-gold-500 focus:outline-none transition-colors"></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-gradient-to-r from-gold-500 to-gold-600 text-black font-bold py-4 rounded-xl hover:brightness-110 transition-all text-sm uppercase tracking-wider shadow-lg shadow-gold-500/20 flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp text-lg"></i>
+                        <span>Valider et Envoyer sur WhatsApp</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-black py-12 border-t border-gold-500/20 text-xs text-gray-400">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-3">
+                <!-- SVG Logo réduit pour footer -->
+                <div class="w-8 h-8 rounded bg-gold-500/10 border border-gold-500/30 p-1">
+                    <svg viewBox="0 0 100 100" class="w-full h-full">
+                        <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" fill="none" stroke="#D4AF37" stroke-width="6" />
+                        <rect x="30" y="35" width="40" height="40" fill="#D4AF37" />
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-white font-bold block text-sm">IGEOBAT</span>
+                    <span>Ivoire Géométrie Bâtiment • Tous droits réservés &copy; 2026</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <a href="https://wa.me/2250779592645" target="_blank" class="hover:text-gold-500 flex items-center gap-1.5">
+                    <i class="fa-brands fa-whatsapp text-gold-500"></i> +225 07 79 59 26 45
+                </a>
+                <span class="text-gray-600">|</span>
+                <span>Côte d'Ivoire</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- LIGHTBOX / MODAL LECTEUR VIDÉO PLEIN ÉCRAN -->
+    <div id="video-modal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl hidden flex-col justify-between p-4 sm:p-8 transition-opacity duration-300">
+        <!-- En-tête Modal -->
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-gold-500 text-black flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-play"></i>
+                </div>
+                <div>
+                    <h3 class="text-white font-bold text-sm sm:text-base font-serif">IGEOBAT - Présentation Vidéo HD</h3>
+                    <p class="text-xs text-gold-500">Cité Résidentielle Habitat Extension</p>
+                </div>
+            </div>
+
+            <button onclick="closeVideoModal()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-gold-500 hover:text-black text-white flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Lecteur Vidéo Plein Écran -->
+        <div class="max-w-5xl w-full mx-auto my-auto relative rounded-2xl overflow-hidden gold-border-glow bg-black shadow-2xl">
+            <video id="modal-video-element" class="w-full max-h-[70vh] object-contain">
+                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
+                <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
+            </video>
+
+            <!-- Overlay Contrôles Vidéo Modal -->
+            <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black via-black/80 to-transparent p-4 sm:p-6 space-y-3">
+                <!-- Timeline Slider -->
+                <input type="range" id="modal-seek-bar" value="0" min="0" max="100" class="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-gold-500" onchange="seekModalVideo(this.value)">
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <button id="modal-play-btn" onclick="toggleModalVideo()" class="w-12 h-12 rounded-full bg-gold-500 text-black flex items-center justify-center font-bold text-lg hover:scale-105 transition-transform">
+                            <i class="fa-solid fa-play" id="modal-play-icon"></i>
+                        </button>
+
+                        <button onclick="toggleModalMute()" class="text-white hover:text-gold-500 text-lg">
+                            <i class="fa-solid fa-volume-high" id="modal-volume-icon"></i>
+                        </button>
+
+                        <span id="modal-time-display" class="text-xs text-gray-300 font-mono">00:00 / 00:00</span>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <button onclick="requestFullscreenVideo()" class="text-white hover:text-gold-500 text-sm bg-white/10 px-3 py-1.5 rounded-lg border border-white/10">
+                            <i class="fa-solid fa-expand mr-1"></i> Plein Écran Native
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chapitres Rapides au bas de la modal -->
+        <div class="max-w-4xl mx-auto w-full flex items-center justify-center gap-3 overflow-x-auto py-2 text-xs">
+            <button onclick="jumpModalVideoTo(0)" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-gold-500/20 text-gray-300 hover:text-gold-500 border border-white/10 whitespace-nowrap">
+                0:00 • Vue du Terrain
+            </button>
+            <button onclick="jumpModalVideoTo(10)" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-gold-500/20 text-gray-300 hover:text-gold-500 border border-white/10 whitespace-nowrap">
+                0:10 • Plan de Masse
+            </button>
+            <button onclick="jumpModalVideoTo(20)" class="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-gold-500/20 text-gray-300 hover:text-gold-500 border border-white/10 whitespace-nowrap">
+                0:20 • Logements & Intérieurs
+            </button>
+        </div>
+    </div>
+
+
+    <!-- JAVASCRIPT & LOGIQUE INTERACTIVE -->
+    <script>
+        // --- 1. GESTION DU MENU MOBILE ---
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            mobileMenu.classList.toggle('flex');
+        });
+
+        // --- 2. GESTION DES LECTEURS VIDÉO (INLINE & MODAL) ---
+        const inlineVideo = document.getElementById('main-project-video');
+        const inlinePlayIcon = document.getElementById('inline-play-icon');
+        const inlineSeekBar = document.getElementById('inline-seek-bar');
+
+        const videoModal = document.getElementById('video-modal');
+        const modalVideo = document.getElementById('modal-video-element');
+        const modalPlayIcon = document.getElementById('modal-play-icon');
+        const modalSeekBar = document.getElementById('modal-seek-bar');
+        const modalTimeDisplay = document.getElementById('modal-time-display');
+
+        // Helper safe-play function to prevent AbortError when play() is interrupted by pause()
+        async function safePlay(videoElement) {
+            try {
+                await videoElement.play();
+            } catch (err) {
+                // Ignore AbortError caused by rapid play/pause toggles or modal state changes
+                if (err.name !== 'AbortError') {
+                    console.error("Video play error:", err);
+                }
+            }
+        }
+
+        function toggleInlineVideo() {
+            if (inlineVideo.paused) {
+                safePlay(inlineVideo);
+                inlinePlayIcon.className = "fa-solid fa-pause";
+            } else {
+                inlineVideo.pause();
+                inlinePlayIcon.className = "fa-solid fa-play";
+            }
+        }
+
+        function toggleInlineMute() {
+            inlineVideo.muted = !inlineVideo.muted;
+            document.getElementById('inline-volume-icon').className = inlineVideo.muted ? "fa-solid fa-volume-xmark text-red-400" : "fa-solid fa-volume-high";
+        }
+
+        inlineVideo.addEventListener('timeupdate', () => {
+            if (inlineVideo.duration) {
+                inlineSeekBar.value = (inlineVideo.currentTime / inlineVideo.duration) * 100;
+            }
+        });
+
+        function seekInlineVideo(val) {
+            if (inlineVideo.duration) {
+                inlineVideo.currentTime = (val / 100) * inlineVideo.duration;
+            }
+        }
+
+        function jumpVideoTo(seconds) {
+            inlineVideo.currentTime = seconds;
+            safePlay(inlineVideo);
+            inlinePlayIcon.className = "fa-solid fa-pause";
+        }
+
+        // Modal Video Controls
+        function openVideoModal() {
+            inlineVideo.pause();
+            inlinePlayIcon.className = "fa-solid fa-play";
+            videoModal.classList.remove('hidden');
+            videoModal.classList.add('flex');
+            safePlay(modalVideo);
+            modalPlayIcon.className = "fa-solid fa-pause";
+        }
+
+        function closeVideoModal() {
+            modalVideo.pause();
+            videoModal.classList.add('hidden');
+            videoModal.classList.remove('flex');
+        }
+
+        function toggleModalVideo() {
+            if (modalVideo.paused) {
+                safePlay(modalVideo);
+                modalPlayIcon.className = "fa-solid fa-pause";
+            } else {
+                modalVideo.pause();
+                modalPlayIcon.className = "fa-solid fa-play";
+            }
+        }
+
+        function toggleModalMute() {
+            modalVideo.muted = !modalVideo.muted;
+            document.getElementById('modal-volume-icon').className = modalVideo.muted ? "fa-solid fa-volume-xmark text-red-400" : "fa-solid fa-volume-high";
+        }
+
+        modalVideo.addEventListener('timeupdate', () => {
+            if (modalVideo.duration) {
+                modalSeekBar.value = (modalVideo.currentTime / modalVideo.duration) * 100;
+                
+                const curM = Math.floor(modalVideo.currentTime / 60);
+                const curS = Math.floor(modalVideo.currentTime % 60);
+                const durM = Math.floor(modalVideo.duration / 60);
+                const durS = Math.floor(modalVideo.duration % 60);
+                
+                modalTimeDisplay.textContent = 
+                    `${curM < 10 ? '0' + curM : curM}:${curS < 10 ? '0' + curS : curS} / ` +
+                    `${durM < 10 ? '0' + durM : durM}:${durS < 10 ? '0' + durS : durS}`;
+            }
+        });
+
+        function seekModalVideo(val) {
+            if (modalVideo.duration) {
+                modalVideo.currentTime = (val / 100) * modalVideo.duration;
+            }
+        }
+
+        function jumpModalVideoTo(seconds) {
+            modalVideo.currentTime = seconds;
+            safePlay(modalVideo);
+            modalPlayIcon.className = "fa-solid fa-pause";
+        }
+
+        function requestFullscreenVideo() {
+            if (modalVideo.requestFullscreen) {
+                modalVideo.requestFullscreen();
+            } else if (modalVideo.webkitRequestFullscreen) {
+                modalVideo.webkitRequestFullscreen();
+            }
+        }
+
+
+        // --- 3. SIMULATEUR 3D INTERACTIF DE LA CITÉ (THREE.JS) ---
+        let scene, camera, renderer, controls;
+        let interactiveObjects = [];
+        let is2DMode = false;
+
+        function init3DScene() {
+            const container = document.getElementById('three-canvas-container');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            // Scène
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0b0d10);
+            scene.fog = new THREE.FogExp2(0x0b0d10, 0.015);
+
+            // Caméra
+            camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+            camera.position.set(35, 25, 45);
+
+            // Rendu
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(width, height);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+
+            // Contrôles
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2 - 0.05; // Empêcher d'aller sous le sol
+
+            // Éclairage
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const sunLight = new THREE.DirectionalLight(0xfff6d1, 1.2);
+            sunLight.position.set(40, 60, 20);
+            sunLight.castShadow = true;
+            sunLight.shadow.mapSize.width = 2048;
+            sunLight.shadow.mapSize.height = 2048;
+            scene.add(sunLight);
+
+            // Sol / Terrain Principal Cité IGEOBAT
+            const groundGeo = new THREE.PlaneGeometry(60, 60);
+            const groundMat = new THREE.MeshStandardMaterial({ color: 0x161b22, roughness: 0.8 });
+            const ground = new THREE.Mesh(groundGeo, groundMat);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            // Grille d'Aménagement
+            const gridHelper = new THREE.GridHelper(60, 20, 0xd4af37, 0x222831);
+            gridHelper.position.y = 0.01;
+            scene.add(gridHelper);
+
+            // Routes / Voies Bitumées
+            const roadMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
+            const mainRoadGeo = new THREE.PlaneGeometry(8, 56);
+            const mainRoad = new THREE.Mesh(mainRoadGeo, roadMat);
+            mainRoad.rotation.x = -Math.PI / 2;
+            mainRoad.position.set(0, 0.02, 0);
+            scene.add(mainRoad);
+
+            // Création des Bâtiments 3D
+            createCityBuildings();
+
+            // Gestion de la sélection au clic
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+
+            container.addEventListener('click', (e) => {
+                const rect = renderer.domElement.getBoundingClientRect();
+                mouse.x = ((e.clientX - rect.left) / container.clientWidth) * 2 - 1;
+                mouse.y = -((e.clientY - rect.top) / container.clientHeight) * 2 + 1;
+
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(interactiveObjects, true);
+
+                if (intersects.length > 0) {
+                    let obj = intersects[0].object;
+                    while (obj.parent && !obj.userData.type) {
+                        obj = obj.parent;
+                    }
+                    if (obj.userData.type) {
+                        updateBuildingDetails(obj.userData);
+                    }
+                }
+            });
+
+            // Adaptation Redimensionnement Fenêtre
+            window.addEventListener('resize', () => {
+                if (!container) return;
+                const newW = container.clientWidth;
+                const newH = container.clientHeight;
+                camera.aspect = newW / newH;
+                camera.updateProjectionMatrix();
+                renderer.setSize(newW, newH);
+            });
+
+            // Animation Loop
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        // Fonction pour générer les blocs 3D de la cité
+        function createCityBuildings() {
+            const studioMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.2, roughness: 0.4 });
+            const villaMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.1, roughness: 0.5 });
+            const gymMat = new THREE.MeshStandardMaterial({ color: 0xaa820a });
+            const gateMat = new THREE.MeshStandardMaterial({ color: 0x475569 });
+
+            // 1. Studios R+1 (4 Unités à gauche de la voie)
+            for (let i = 0; i < 4; i++) {
+                const group = new THREE.Group();
+                const body = new THREE.Mesh(new THREE.BoxGeometry(6, 6, 8), studioMat);
+                body.position.y = 3;
+                body.castShadow = true;
+                group.add(body);
+
+                // Toit moderne
+                const roof = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.4, 8.4), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
+                roof.position.y = 6.2;
+                group.add(roof);
+
+                group.position.set(-14, 0, -18 + i * 11);
+                group.userData = {
+                    title: `Studio Américain R+1 - Unité 0${i+1}`,
+                    badge: "Disponible",
+                    type: "studio",
+                    desc: "Studio en duplex de luxe. Rez-de-chaussée salon/cuisine américaine, étage avec grande chambre, salle de bain et balcon privé."
+                };
+                scene.add(group);
+                interactiveObjects.push(group);
+            }
+
+            // 2. Villas Base 1 CH & 2 CH (4 Unités à droite de la voie)
+            for (let i = 0; i < 4; i++) {
+                const group = new THREE.Group();
+                const body = new THREE.Mesh(new THREE.BoxGeometry(8, 4, 9), villaMat);
+                body.position.y = 2;
+                body.castShadow = true;
+                group.add(body);
+
+                // Jardin vert
+                const garden = new THREE.Mesh(new THREE.PlaneGeometry(10, 11), new THREE.MeshStandardMaterial({ color: 0x15803d }));
+                garden.rotation.x = -Math.PI / 2;
+                garden.position.set(0, 0.01, 0);
+                group.add(garden);
+
+                group.position.set(14, 0, -18 + i * 11);
+                group.userData = {
+                    title: `Villa Individuelle - Villa 0${i+1}`,
+                    badge: i % 2 === 0 ? "Villa 2 CH" : "Villa 1 CH",
+                    type: "villa",
+                    desc: "Villa basse moderne clés en main avec jardin clôturé, séjour spacieux, finitions VIP et garage privé."
+                };
+                scene.add(group);
+                interactiveObjects.push(group);
+            }
+
+            // 3. Salle de Sport & Espace Commun
+            const gymGroup = new THREE.Group();
+            const gymBody = new THREE.Mesh(new THREE.BoxGeometry(10, 5, 12), gymMat);
+            gymBody.position.y = 2.5;
+            gymBody.castShadow = true;
+            gymGroup.add(gymBody);
+            gymGroup.position.set(-18, 0, 22);
+            gymGroup.userData = {
+                title: "Espace Sportif & Fitness IGEOBAT",
+                badge: "Équipement Commun",
+                type: "gym",
+                desc: "Salle de gym réservée exclusivement aux résidents de la cité. Matériel de musculation et cardio-training de pointe."
+            };
+            scene.add(gymGroup);
+            interactiveObjects.push(gymGroup);
+
+            // 4. Portail & Poste de Sécurité
+            const gateGroup = new THREE.Group();
+            const gatePillar1 = new THREE.Mesh(new THREE.BoxGeometry(2, 6, 2), gateMat);
+            const gatePillar2 = new THREE.Mesh(new THREE.BoxGeometry(2, 6, 2), gateMat);
+            gatePillar1.position.set(-6, 3, -27);
+            gatePillar2.position.set(6, 3, -27);
+            gateGroup.add(gatePillar1);
+            gateGroup.add(gatePillar2);
+            gateGroup.userData = {
+                title: "Poste de Sécurité & Garite",
+                badge: "Sécurité 24/7",
+                type: "security",
+                desc: "Accès contrôlé avec barrière automatique, gardiennage permanent et vidéosurveillance."
+            };
+            scene.add(gateGroup);
+            interactiveObjects.push(gateGroup);
+        }
+
+        function updateBuildingDetails(data) {
+            document.getElementById('selected-building-title').textContent = data.title;
+            document.getElementById('selected-building-badge').textContent = data.badge;
+            document.getElementById('selected-building-details').innerHTML = `
+                <p class="text-sm text-gray-200 leading-relaxed">${data.desc}</p>
+                <div class="mt-4 p-3 bg-gold-500/10 border border-gold-500/30 rounded-xl">
+                    <span class="text-xs text-gold-500 font-semibold block mb-1"><i class="fa-solid fa-shield-halved mr-1"></i> Garantie IGEOBAT</span>
+                    <span class="text-xs text-gray-300">Livraison avec titre foncier individuel et accompagnement géomètre agréé.</span>
+                </div>
+            `;
+            document.getElementById('building-action-btn').href = "#reservation";
+        }
+
+        function reset3DCamera() {
+            is2DMode = false;
+            camera.position.set(35, 25, 45);
+            controls.target.set(0, 0, 0);
+            controls.update();
+            document.getElementById('view-mode-btn').innerHTML = '<i class="fa-solid fa-layer-group mr-1"></i> Basculer Vue Plan 2D';
+        }
+
+        function toggle2D3DView() {
+            if (!is2DMode) {
+                camera.position.set(0, 70, 0.1);
+                controls.target.set(0, 0, 0);
+                controls.update();
+                document.getElementById('view-mode-btn').innerHTML = '<i class="fa-solid fa-cube mr-1"></i> Basculer Vue 3D Perspective';
+                is2DMode = true;
+            } else {
+                reset3DCamera();
+            }
+        }
+
+        // --- 4. GESTION DES 10 LOTS PÉRIPHÉRIQUES ---
+        const lotsData = Array.from({ length: 10 }, (_, i) => ({
+            id: i + 1,
+            size: 450 + (i * 15),
+            status: i === 2 || i === 7 ? "Réservé" : "Disponible",
+            facing: i < 5 ? "Façade Nord" : "Façade Sud"
+        }));
+
+        let selectedLotNumber = null;
+
+        function renderLotsGrid() {
+            const container = document.getElementById('lots-grid-container');
+            container.innerHTML = lotsData.map(lot => `
+                <div onclick="selectLot(${lot.id})" class="p-4 rounded-xl cursor-pointer transition-all border ${
+                    lot.status === 'Disponible' 
+                    ? 'bg-cardBg border-gold-500/30 hover:border-gold-500 hover:scale-105' 
+                    : 'bg-gray-900/50 border-gray-800 opacity-60 cursor-not-allowed'
+                } text-center">
+                    <div class="text-xs text-gray-400 font-mono">LOT</div>
+                    <div class="text-xl font-bold text-white font-serif">N° ${lot.id < 10 ? '0' + lot.id : lot.id}</div>
+                    <div class="text-[11px] text-gold-500 mt-1">${lot.size} m²</div>
+                    <span class="inline-block mt-2 text-[10px] px-2 py-0.5 rounded-full ${
+                        lot.status === 'Disponible' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                    }">${lot.status}</span>
+                </div>
+            `).join('');
+        }
+
+        function selectLot(id) {
+            const lot = lotsData.find(l => l.id === id);
+            if (!lot || lot.status !== 'Disponible') return;
+
+            selectedLotNumber = id;
+            const box = document.getElementById('lot-detail-box');
+            box.classList.remove('hidden');
+
+            document.getElementById('lot-detail-number').textContent = `Lot N° ${id < 10 ? '0' + id : id}`;
+            document.getElementById('lot-detail-desc').textContent = `Superficie : ${lot.size} m² | Emplacement : ${lot.facing} de la cité. Titre ACD garanti.`;
+            
+            box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function selectLotForOrder() {
+            if (!selectedLotNumber) return;
+            const msg = `Bonjour IGEOBAT, je souhaite réserver le Lot Périphérique N° ${selectedLotNumber} de la Cité Résidentielle Habitat Extension.`;
+            window.open(`https://wa.me/2250779592645?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+
+        // --- 5. GESTION FORMULAIRE QUALIFICATION VIP & WHATSAPP ---
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('form-fullname').value;
+            const phone = document.getElementById('form-phone').value;
+            const profession = document.getElementById('form-profession').value;
+            const income = document.getElementById('form-income').value;
+            const interest = document.getElementById('form-interest').value;
+            const message = document.getElementById('form-message').value;
+
+            const whatsappMessage = 
+                `*PRE-RESERVATION VIP - IGEOBAT*\n\n` +
+                `*Nom & Prénoms :* ${name}\n` +
+                `*Téléphone :* ${phone}\n` +
+                `*Profession :* ${profession}\n` +
+                `*Revenu Mensuel :* ${income}\n` +
+                `*Projet d'intérêt :* ${interest}\n` +
+                `*Message :* ${message || 'Aucun'}\n\n` +
+                `_Demande transmise depuis le site web IGEOBAT._`;
+
+            const whatsappUrl = `https://wa.me/2250779592645?text=${encodeURIComponent(whatsappMessage)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+
+        // --- INITIALISATION AU CHARGEMENT DE LA PAGE ---
+        window.onload = function () {
+            // Démarrage de la Scène 3D
+            init3DScene();
+            // Génération de la grille des lots
+            renderLotsGrid();
+        };
+    </script>
+</body>
+</html>
